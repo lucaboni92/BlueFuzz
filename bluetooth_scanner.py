@@ -7,11 +7,19 @@ from obd_generator import *
 
 SCANNER_TIME = 3
 
+# NOTE: shuold be run as root
+
 def main():
 	
 	try:
+		# switch off subprocesses output
 		devs = open(os.devnull,"w")
+		
+		# make directory with root privileges to store pcap output file
+		# tshark output can be stored only in root's directories
 		subprocess.call("mkdir ./capture",shell=True,stdout=devs,stderr=devs)
+		
+		#run tshark with root privileges on bluetooth interface
 		thread=subprocess.Popen(["tshark", "-w", "./capture/capture.pcap", "-i", "bluetooth0"],stdout=devs,stderr=devs)
 		
 		#STEP 1: BLUETOOTH SCANNER
