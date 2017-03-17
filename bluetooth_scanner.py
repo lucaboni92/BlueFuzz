@@ -42,6 +42,7 @@ def main():
 			print "Device N." + str(i) + ": " + addr + ": " + name		
 			
 			for services in bluetooth.find_service(address = addr):
+				print "   Service number: ", j
 				print "   Name: ", services["name"]
 				print "   Description: ", services["description"]
 				print "   Protocol: ", services["protocol"]
@@ -49,6 +50,7 @@ def main():
 				print "   Port: ", services["port"]
 				print "   Service id: ", services["service-id"]
 				print ""
+				j=j+1
 			i=i+1	
 		
 		
@@ -81,15 +83,15 @@ def main():
 			quit()
 			
 		try:
-			# bluetooth protocol: RFCOMM
+			# bluetooth protocol for OBD-II interaction: RFCOMM
 			socket = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
 			socket.connect((address,port))
 			print "Device connected"
 			
-			# the first packet is equal to the first sent by the official Andoid application for OBDII interaction
+			# the first packet is equal to the first sent by the official application
 			socket.send("ATZ\r")
 			print "Sent: ATZ\r"
-			# expected answer is "ELM327 v1.5\r\r"
+			# expected answer is "\r\rELM327 v1.5\r\r"
 			
 			while True:
 				# send pseudo-random generated data
@@ -116,12 +118,3 @@ def main():
 
 if __name__ == "__main__":
 	main()
-
-
-
-
-	
-
-
-
-	
