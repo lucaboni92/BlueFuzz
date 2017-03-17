@@ -11,7 +11,9 @@ Prerequisites
     sudo apt-get install bluez
     sudo apt-get install python-bluez
 
-    sudo apt-get install libbluetooth-dev bluez bluez-hcidump  libboost-python-dev libboost-thread-dev libglib2.0-dev
+    sudo apt-get install libbluetooth-dev bluez-hcidump  libboost-python-dev libboost-thread-dev libglib2.0-dev
+    
+    sudo apt-get install tshark
 
     pip install pybluez gattlib
 
