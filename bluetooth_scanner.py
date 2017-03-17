@@ -7,7 +7,7 @@ from obd_generator import *
 
 SCANNER_TIME = 3
 
-# NOTE: shuold be run as root
+# NOTE: should be run as root
 
 def main():
 	
