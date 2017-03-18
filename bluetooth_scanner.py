@@ -1,6 +1,5 @@
 import bluetooth
 import subprocess
-import binascii
 import time
 import os
 from obd_generator import *
@@ -33,22 +32,29 @@ def main():
 		i=0
 		dev_names = []
 		dev_addr = []
+		dev_services = []
 		
 		# print services for each discovered device
 		for addr, name in devices:
 			#device_name = bluetooth.lookup_name(addr)
 			dev_addr.append(addr)
 			dev_names.append(name)
-			print "Device N." + str(i) + ": " + addr + ": " + name		
+			print "Device N." + str(i) + ": " + addr + ": " + name
+			services = []	
 			
-			for services in bluetooth.find_service(address = addr):
-				print "   Name: ", services["name"]
-				print "   Description: ", services["description"]
-				print "   Protocol: ", services["protocol"]
-				print "   Provider: ", services["provider"]
-				print "   Port: ", services["port"]
-				print "   Service id: ", services["service-id"]
+			j=0
+			for service in bluetooth.find_service(address = addr):
+				print "   Service N: ", j
+				print "   Name: ", service["name"]
+				print "   Description: ", service["description"]
+				print "   Protocol: ", service["protocol"]
+				print "   Provider: ", service["provider"]
+				print "   Port: ", service["port"]
+				print "   Service id: ", service["service-id"]
 				print ""
+				services.append(service)
+				j=j+1
+			dev_services.append(services)
 			i=i+1	
 		
 		
@@ -72,24 +78,47 @@ def main():
 		name = dev_names[deviceNum]
 		print "You have chosen device " + str(deviceNum) + ": " + address + "(" + name + ")"
 		
-		#STEP 3: PAIRING
+		#STEP 3: CHOSE SERVICE
 		try:
-			port = int(raw_input('Chose the port :'))         # RFCOMM port
+			serviceNum = int(raw_input('Chose the service number :'))         # RFCOMM port
 		except ValueError:
 			print "Not a number"
 			thread.terminate()
 			quit()
+		chosen_services = dev_services[deviceNum]
+		chosen_service = chosen_services[serviceNum]
+		protocol = chosen_service["protocol"]
+		port = chosen_service["port"]
+		
+		print "protocol: " + protocol
+		print "port: ", port
 			
+		#STEP 4: PAIRING
 		try:
 			# bluetooth protocol for OBD-II interaction: RFCOMM
-			socket = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+			if protocol == "RFCOMM":
+				socket = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+			elif protocol == "L2CAP":
+				socket = bluetooth.BluetoothSocket(bluetooth.L2CAP)
+			else:
+				print "Protocol not supported"
+				thread.terminate()
+				quit()
+			
 			socket.connect((address,port))
 			print "Device connected"
 			
 			# the first packet is equal to the first sent by the official application
 			socket.send("ATZ\r")
 			print "Sent: ATZ\r"
+			time.sleep(1)
 			# expected answer is "\r\rELM327 v1.5\r\r"
+			
+			# the second packet is equal to the second sent by the official application
+			socket.send("ATD\r")
+			print "Sent: ATD\r"
+			time.sleep(1)
+			# expected answer is "\rOK\r\r"
 			
 			while True:
 				# send pseudo-random generated data
@@ -107,12 +136,15 @@ def main():
 		except bluetooth.btcommon.BluetoothError as err:
 			print err
 			socket.close()
+			thread.terminate()
+			quit()
 			
 	except KeyboardInterrupt:
-		# to intercept CRTL+C interrupt 
-		thread.terminate()
+		# to intercept CRTL+C interrupt 		
 		print "\nQuitting..."
-	
+		thread.terminate()
+		quit()
+		
 
 if __name__ == "__main__":
 	main()
