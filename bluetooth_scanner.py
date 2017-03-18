@@ -42,7 +42,6 @@ def main():
 			print "Device N." + str(i) + ": " + addr + ": " + name		
 			
 			for services in bluetooth.find_service(address = addr):
-				print "   Service number: ", j
 				print "   Name: ", services["name"]
 				print "   Description: ", services["description"]
 				print "   Protocol: ", services["protocol"]
@@ -50,7 +49,6 @@ def main():
 				print "   Port: ", services["port"]
 				print "   Service id: ", services["service-id"]
 				print ""
-				j=j+1
 			i=i+1	
 		
 		
