@@ -86,6 +86,10 @@ def main():
 			thread.terminate()
 			quit()
 		chosen_services = dev_services[deviceNum]
+		if serviceNum >= len(chosen_services):
+			print "Input error: no such service"
+			thread.terminate()
+			quit()
 		chosen_service = chosen_services[serviceNum]
 		protocol = chosen_service["protocol"]
 		port = chosen_service["port"]
